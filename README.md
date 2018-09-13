@@ -1,5 +1,5 @@
-# getGmailList
-Get the list of Gmail List of specific account with TypeScript &amp; Puppeteer
+# getMailList
+Get the list of mail of the specific account with TypeScript &amp; Puppeteer
 
 # 과제 시작
 - 자신의 github으로 해당 repo를 fork 떠간다.
