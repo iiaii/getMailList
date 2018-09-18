@@ -1,0 +1,36 @@
+{
+    "compilerOptions": {
+      "module": "commonjs",
+      "moduleResolution": "node",
+      "target": "es2018",
+      "lib": [
+          "dom",
+          "es2018"
+      ],
+      "removeComments": true,
+      "noImplicitAny": false,
+      "inlineSourceMap": true,
+      "noEmitOnError": false,
+      "strictNullChecks": true,
+      "noImplicitReturns": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "declaration": true,
+      "outDir": "./build",
+      "baseUrl": ".",
+      "rootDir": "./",
+      "paths": {
+        "*": [
+            "*",
+            "etc/*",
+            "inquiry/*",
+            "order/*",
+            "product/*"
+        ]
+      }
+    },
+    "exclude": [
+      "node_modules",
+      "./build"
+    ]
+}

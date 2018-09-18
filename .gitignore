@@ -59,3 +59,6 @@ typings/
 
 # next.js build output
 .next
+
+# iiaii 디렉토리 무시 파일
+iiaii/example.js
