@@ -19,14 +19,14 @@ describe('# 메일 정보 추출 테스트', () => {
         const result: any = await main(id, pwd);
 
         // 테스트 성공
-        if (result.status === '200') {
-            assert.isObject('', '형식 확인');
+        if (result.status === 200) {
+            assert.isObject(result, '형식 확인');
             resultChk(result.name, '보낸이름 -> 유효값인지 확인');
             resultChk(result.title, '메일제목 -> 유효값인지 확인');
         } /*
         // 테스트 실패
-        else if(result.status === '400') {  
-            
+        else if(result.status === 400) {  
+            // result.errorMsg 에러메세지 확인
         }*/
     }).timeout(20000);
 });

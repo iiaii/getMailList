@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "go": "cd iiaii && DEBUG=get* ts-node getMailList.ts",
     "compile": "rimraf ./build && tslint -p ./tsconfig.json --fix  && tsc -p ./tsconfig.json",
-    "tscp":"tsc -p ./tsconfig.json"
+    "tscp":"tsc -p ./iiaii/tsconfig.json"
   },
   "repository": {
     "type": "git",
