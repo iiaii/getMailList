@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "go": "cd iiaii && DEBUG=get* ts-node getMailList.ts",
     "compile": "rimraf ./build && tslint -p ./tsconfig.json --fix  && tsc -p ./tsconfig.json",
-    "tscp":"tsc -p ./iiaii/tsconfig.json"
+    "tscp": "tsc -p ./iiaii/tsconfig.json"
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/h4l-yup/getGmailList#readme",
   "dependencies": {
+    "@types/chai": "^4.1.4",
     "@types/puppeteer": "^1.6.3",
     "chai": "^4.1.2",
     "cheerio": "^1.0.0-rc.2",

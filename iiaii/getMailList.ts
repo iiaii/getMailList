@@ -3,14 +3,13 @@ import * as puppeteer from 'puppeteer';
 const debug = Debug('getMailList');
 
 // 로그인
-const login = async (_page: any, _id: string, _pwd: string): Promise<any> => {
+const login = async (_page: puppeteer.Page, _id: string, _pwd: string): Promise<any> => {
     try {
         let link: string = '';
 
         // 아이디창 입력
         await _page.type('#identifierId', _id);
         await _page.click('#identifierNext > div.ZFr60d.CeoRYc');
-
         // 패스워드 입력
         const pwdSpace = '.whsOnd.zHQkBf';
         await _page.waitForNavigation({ waitUntil: 'networkidle2' });
@@ -20,39 +19,35 @@ const login = async (_page: any, _id: string, _pwd: string): Promise<any> => {
 
         return link;
     } catch (error) {
-        throw error;
+        throw new Error('로그인에서 에러남 -> ' + error);
     }
 };
 // 메일 정보(이름,제목) 추출
-const extractMailList = async (_page: any, _link: string): Promise<any> => {
+const extractMailList = async (_page: puppeteer.Page, _link: string): Promise<any> => {
     try {
-        const data: any = {};
-        const nameTag = 'td.yX.xY .yW span';
-        const titleTag = 'td.xY.a4W .bog';
-        await _page.waitForSelector(nameTag);
+        const mailTag: string = 'tr.zA div.afn';
+        await _page.waitForSelector(mailTag);
 
-        // 메일 송신자 이름 추출
-        data.name = await _page.evaluate((nameTag) => {
-            const anchors = Array.from(document.querySelectorAll(nameTag));
-            return anchors.map((anchor) => {
-                const title = anchor.textContent;
+        // 메일 정보(이름,제목) 추출
+        return await _page.evaluate((mailTag) => {
+            const anchors = Array.from(document.querySelectorAll(mailTag));
+            const mails: object[] = [];
 
-                return title;
+            anchors.map((anchor) => {
+                const mailData: any = {};
+                let text: string | null = anchor.textContent;
+                if (text !== null) {
+                    text = text.replace('읽지 않음, ', '');
+                    const textArray: string[] = text.split(', ');
+                    mailData.sender = textArray[0];
+                    mailData.subject = textArray[1];
+                    mails.push(mailData);
+                }
             });
-        }, nameTag);
-        // 메일 제목 추출
-        data.title = await _page.evaluate((titleTag) => {
-            const anchors = Array.from(document.querySelectorAll(titleTag));
-            return anchors.map((anchor) => {
-                const title = anchor.textContent;
-
-                return title;
-            });
-        }, titleTag);
-
-        return data;
+            return mails;
+        }, mailTag);
     } catch (error) {
-        throw error;
+        throw new Error('메일 정보(이름,제목) 추출에서 에러남 -> ' + error);
     }
 };
 // 페이지 로드
@@ -65,32 +60,33 @@ const pageLoad = async (): Promise<any> => {
 
         return _Load;
     } catch (error) {
-        throw error;
+        throw new Error('페이지 로드에서 에러남 -> ' + error);
     }
 };
 // 메인
 const main = async (ID: string, PWD: string): Promise<any> => {
+    let browser;
     try {
         const Load = await pageLoad();
         const page = Load.page;
-        const browser = Load.browser;
+        browser = Load.browser;
         const loginResult = await login(page, ID, PWD);
         const extractResult = await extractMailList(page, loginResult);
 
         debug(extractResult);
         await browser.close();
-        const result = {
-            name : extractResult.name,
-            title : extractResult.title,
-            status : 200,
+        const result: object = {
+            mails: extractResult,
+            status: 200,
         };
         return result;
     } catch (error) {
-        const error_result = {
-            errorMsg : error,
-            status : 400,
+        const error_result: object = {
+            errorMsg: error,
+            status: 400,
         };
         debug(error);
+        browser.close();
         return error_result;
     }
 };
