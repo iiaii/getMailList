@@ -1,11 +1,15 @@
 import * as puppeteer from 'puppeteer';
+import * as interfaces from 'interfaces';
 
 // 페이지 로드
-const pageLoad = async (): Promise<any> => {
+const pageLoad = async (): Promise<interfaces.pageLoadData> => {
+
     try {
-        const _Load: any = {};
-        _Load.browser = await puppeteer.launch({ headless: false });
-        _Load.page = await _Load.browser.newPage();
+        const _browser = await puppeteer.launch({ headless: false });
+        const _Load: interfaces.pageLoadData = {
+            browser: _browser,
+            page: await _browser.newPage(),
+        };
         // await _Load.page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.99 Safari/537.36');
         await _Load.page.goto('https://accounts.google.com/ServiceLogin/signinchooser?service=mail&passive=true&rm=false&continue=https%3A%2F%2Fmail.google.com%2Fmail%2F&ss=1&scc=1&ltmpl=default&ltmplcache=2&emr=1&osid=1&flowName=GlifWebSignIn&flowEntry=ServiceLogin');
         await _Load.page.waitForSelector('#identifierId', { timeout: 10000 });  // 페이지 로드까지 최대 10초 기다려줌
@@ -16,52 +20,57 @@ const pageLoad = async (): Promise<any> => {
     }
 };
 // 로그인
-const login = async (_page: puppeteer.Page, _id: string, _pwd: string): Promise<any> => {
-    let errorMsg: string = '로그인에서 에러발생 -> 아이디 입력전에 에러발생 \n';
+const login = async (_page: puppeteer.Page, _id: string, _pwd: string): Promise<string> => {
     try {
-        // 아이디창 입력
-        await _page.type('#identifierId', _id);
-        await _page.click('#identifierNext > div.ZFr60d.CeoRYc');
-        errorMsg = '로그인에서 에러발생 -> 아이디 에러 혹은 네트워크지연\n';
-        await _page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 5000 });    // 비밀번호 창까지 최대 5초 기다려 줌
-        
+        // 아이디 입력
+        try {
+            await _page.type('#identifierId', _id);
+            await _page.click('#identifierNext > div.ZFr60d.CeoRYc');
+            await _page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 5000 });    // 비밀번호 창까지 최대 5초 기다려 줌
+        } catch (error) {
+            throw new Error('로그인에서 에러발생 -> 아이디 에러 혹은 네트워크지연\n' + error);
+        }
         // 패스워드 입력
-        await _page.type('.whsOnd.zHQkBf', _pwd);
-        await _page.click('#passwordNext > div.ZFr60d.CeoRYc');
-        errorMsg = '로그인에서 에러발생 -> 비밀번호 에러 혹은 네트워크지연\n';
-        await _page.waitForSelector('tr.zA div.afn', { timeout: 15000 });  // 메일 페이지 로딩까지 최대 15초 기다려줌
-        return await _page.url();
+        try {
+            await _page.type('.whsOnd.zHQkBf', _pwd);
+            await _page.click('#passwordNext > div.ZFr60d.CeoRYc');
+            await _page.waitForSelector('tr.zA div.afn', { timeout: 15000 });  // 메일 페이지 로딩까지 최대 15초 기다려줌
+            return await _page.url();
+        } catch (error) {
+            throw new Error('로그인에서 에러발생 -> 비밀번호 에러 혹은 네트워크지연\n' + error);
+        }
     } catch (error) {
-        throw new Error(errorMsg + error);
+        throw error;
     }
 };
 // 메일 정보(이름,제목) 추출
-const extractMailList = async (_page: puppeteer.Page, _link: string): Promise<any> => {
+const extractMailList = async (_page: puppeteer.Page, _link: string): Promise<interfaces.mails[]> => {
     try {
         // 메일 정보(이름,제목) 추출
         return await _page.evaluate(() => {
             const anchors = Array.from(document.querySelectorAll('tr.zA div.afn'));
-            const mails: object[] = [];
+            const mailData: interfaces.mails[] = [];
 
-            anchors.map((anchor) => {
-                const mailData: any = {};
+            anchors.forEach((anchor) => {
                 let text: string | null = anchor.textContent;
                 if (text !== null) {
                     text = text.replace('읽지 않음, ', '');
                     const textArray: string[] = text.split(', ');
-                    mailData.sender = textArray[0];
-                    mailData.subject = textArray[1];
-                    mails.push(mailData);
+                    const mails: interfaces.mails = {
+                        sender: textArray[0],
+                        subject: textArray[1],
+                    };
+                    mailData.push(mails);
                 }
             });
-            return mails;
+            return mailData;
         });
     } catch (error) {
         throw new Error('메일 정보(이름,제목) 추출에서 에러발생 -> ' + error);
     }
 };
 // 메인
-const main = async (ID: string, PWD: string): Promise<any> => {
+const main = async (ID: string, PWD: string): Promise<interfaces.result> => {
     let browser;
     try {
         const Load = await pageLoad();
@@ -71,14 +80,14 @@ const main = async (ID: string, PWD: string): Promise<any> => {
         const extractResult = await extractMailList(page, loginResult);
 
         await browser.close();
-        const result: object = {
+        const result: interfaces.result = {
             mails: extractResult,
             status: 200,
         };
         return result;
     } catch (error) {
         await browser.close();
-        const error_result: object = {
+        const error_result: interfaces.result = {
             errorMsg: error,
             status: 400,
         };

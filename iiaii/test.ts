@@ -1,8 +1,8 @@
 import * as chai from 'chai';
 import * as Debug from 'debug';
+import * as interfaces from 'interfaces';
+import { main } from './getMailList';
 const debug = Debug('test');
-const getMailList = require('./build/getMailList');
-const main = getMailList.main;
 const assert = chai.assert;
 const id: string = process.argv[5];
 const pwd: string = process.argv[6];
@@ -17,7 +17,7 @@ const resultChk = (value, text) => {
 // getMailList 테스트
 describe('# 메일 정보 추출 테스트', () => {
     it('메일 리스트(제목,보낸사람) 리턴?', async () => {
-        const result: any = await main(id, pwd);
+        const result: interfaces.result = await main(id, pwd);
         // 테스트 성공
         if (result.status === 200) {
             assert.isObject(result, '형식 확인');
