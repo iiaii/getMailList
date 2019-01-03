@@ -1,6 +1,5 @@
 import { account } from '../Mingtori/interfaces'
 import { get_page, google_login, get_browser, close_browser, get_mail_list, get_gmails } from "../Mingtori/google_mail";
-import * as config from '../Mingtori/config';
 import { fail } from 'assert';
 
 let browser ;
@@ -13,29 +12,24 @@ const account: account = {
 
 describe('gmail list test', function() {
 	it('get_brower 실행', async function() {
-		browser = await get_browser();
-		if(browser === config.GET_BROWSER_FALE){
-			fail('브라우저 실행 실패');
+		try {
+			browser = await get_browser();
+		} catch (error) {
+			fail(error);
 		}
-	})
+	});
 	it('get_page 실행', async function() {
-		page = await get_page(browser);
-		if(page === config.GET_PAGE_FAIL){
-			fail('새페이지 실행 실패');
+		try {
+			page = await get_page(browser);
+		} catch (error) {
+			fail(error);
 		}
-	})
+	});
 	it('google login', async function() {
 		try {
 			await google_login(account, page);
 		} catch (error) {
-			switch(error){
-				case config.ID_FAIL:
-					fail('아이디 없음');
-					break;
-				case config.PASSWORD_FAIL:
-					fail('비밀번호 틀림');
-					break;
-			}
+			fail(error);
 		}
 	}).timeout(10000);
 	it('mail_load', async function() {
@@ -43,15 +37,14 @@ describe('gmail list test', function() {
 			await get_mail_list(page);
 			console.log(get_gmails());
 		} catch (error) {
-			if(error === config.EMAIL_LOAD_FAIL){
-				fail('이메일 로드 실패');
-			}
+			fail(error);
 		}
 	});
 	it('browser close', async function() {
-		if(browser === config.GET_BROWSER_FALE){
-			fail('브라우저 닫기 실패');
+		try {
+			await close_browser(browser);
+		} catch (error) {
+			fail(error);
 		}
-		await close_browser(browser);
-	})
-})
+	});
+});
