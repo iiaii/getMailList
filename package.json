@@ -17,9 +17,11 @@
   },
   "homepage": "https://github.com/h4l-yup/getGmailList#readme",
   "dependencies": {
+    "@types/mocha": "^5.2.5",
     "@types/puppeteer": "^1.6.3",
     "cheerio": "^1.0.0-rc.2",
-    "puppeteer": "^1.8.0"
+    "puppeteer": "^1.8.0",
+    "ts-node": "^7.0.1"
   },
   "devDependencies": {
     "debug": "^4.0.1",
