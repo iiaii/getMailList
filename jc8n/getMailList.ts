@@ -3,7 +3,7 @@ import * as prompt from 'async-prompt';
 import { user } from './interfaces';
 
 
-//이메일, 비밀번호 입력받는 함수
+//이메일, 비밀번호 입력받는 함수 
 export const input = async (): Promise<user> => {
   const login_information: user = {
     email: '',
