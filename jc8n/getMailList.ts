@@ -50,9 +50,6 @@ export const login = async (user_information: user, page: puppeteer.Page) => {
   }
   await page.type('input[type="password"]', user_information.password)
   await page.click('#passwordNext')
-
-
-
 }
 
 //###4 보낸사람 추출
